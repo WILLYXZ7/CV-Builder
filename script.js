@@ -24,9 +24,97 @@ document.addEventListener('DOMContentLoaded', () => {
     const userBadge = document.getElementById('user-badge');
     const badgeText = userBadge.querySelector('.badge-text');
 
+    const viewModeToggleBtn = document.getElementById('view-mode-toggle');
+    const portfolioSection = document.getElementById('portfolio-section');
+    const cvGrid = cvContent.querySelector('.cv-grid');
+    const portfolioIcon = viewModeToggleBtn.querySelector('.portfolio-icon');
+    const cvIcon = viewModeToggleBtn.querySelector('.cv-icon');
+    const qrCodeImg = document.getElementById('qr-code');
+
     let supabase = null;
     if (SUPABASE_URL !== 'SEU_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'SUA_SUPABASE_ANON_KEY') {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    if (qrCodeImg) {
+        qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`;
+    }
+
+    let isPortfolioMode = false;
+
+    viewModeToggleBtn.addEventListener('click', () => {
+        isPortfolioMode = !isPortfolioMode;
+        const portfolioPlaceholder = document.getElementById('portfolio-placeholder');
+        const projectsListContainer = document.getElementById('projects-list-container');
+        
+        if (isPortfolioMode) {
+            cvGrid.style.display = 'none';
+            portfolioSection.style.display = 'block';
+            portfolioIcon.style.display = 'none';
+            cvIcon.style.display = 'inline-block';
+            viewModeToggleBtn.title = 'Ver Currículo';
+            
+            if (isEditMode) {
+                portfolioPlaceholder.style.display = 'none';
+                projectsListContainer.style.display = 'grid';
+            } else {
+                const projectCardsCount = portfolioSection.querySelectorAll('.project-card').length;
+                if (projectCardsCount > 0) {
+                    portfolioPlaceholder.style.display = 'none';
+                    projectsListContainer.style.display = 'grid';
+                } else {
+                    portfolioPlaceholder.style.display = 'flex';
+                    projectsListContainer.style.display = 'none';
+                }
+            }
+            showToast('Modo Portfólio ativado.');
+        } else {
+            cvGrid.style.display = 'grid';
+            portfolioSection.style.display = 'none';
+            portfolioPlaceholder.style.display = 'none';
+            projectsListContainer.style.display = 'none';
+            portfolioIcon.style.display = 'inline-block';
+            cvIcon.style.display = 'none';
+            viewModeToggleBtn.title = 'Ver Portfólio';
+            showToast('Modo Currículo ativado.');
+        }
+    });
+
+    async function logEvent(eventType) {
+        if (!supabase) return;
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session && session.user.email === ADMIN_EMAIL && eventType === 'page_view') {
+                return;
+            }
+            await supabase.from('cv_metrics').insert({ event_type: eventType });
+        } catch (err) {
+            console.error(err.message);
+        }
+    }
+
+    async function updateMetricsDashboard() {
+        if (!supabase) return;
+        try {
+            const { count: viewsCount, error: viewsError } = await supabase
+                .from('cv_metrics')
+                .select('*', { count: 'exact', head: true })
+                .eq('event_type', 'page_view');
+                
+            const { count: downloadsCount, error: downloadsError } = await supabase
+                .from('cv_metrics')
+                .select('*', { count: 'exact', head: true })
+                .eq('event_type', 'pdf_download');
+
+            if (viewsError) throw viewsError;
+            if (downloadsError) throw downloadsError;
+
+            document.getElementById('metric-views').textContent = viewsCount || 0;
+            document.getElementById('metric-downloads').textContent = downloadsCount || 0;
+            document.getElementById('metrics-dashboard').style.display = 'block';
+        } catch (err) {
+            console.error(err.message);
+        }
     }
 
     async function loadCvData() {
@@ -134,12 +222,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 editToggleBtn.style.display = 'inline-flex';
                 badgeText.textContent = `Admin: ${session.user.email}`;
                 userBadge.style.display = 'inline-flex';
+                updateMetricsDashboard();
             } else {
                 lockIcon.style.display = 'inline-block';
                 unlockIcon.style.display = 'none';
                 authBtn.title = 'Acesso Restrito';
                 editToggleBtn.style.display = 'none';
                 userBadge.style.display = 'none';
+                document.getElementById('metrics-dashboard').style.display = 'none';
                 if (isEditMode) {
                     toggleEditMode(false);
                 }
@@ -218,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadCvData().then(() => {
         updateAuthStateUI();
+        logEvent('page_view');
     });
 
     const savedTheme = localStorage.getItem('cv-theme') || 'dark-theme';
@@ -258,7 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
             '#cv-content .institution',
             '#cv-content .date',
             '#cv-content .date-badge',
-            '#cv-content .tag-text'
+            '#cv-content .tag-text',
+            '.project-card h3',
+            '.project-card .badge',
+            '.project-card .project-description',
+            '.project-card .project-tag'
         ];
         return cvContent.querySelectorAll(selectors.join(', '));
     }
@@ -267,6 +362,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isEditMode = forceState !== null ? forceState : !isEditMode;
         const editables = getEditableElements();
         const addBtns = cvContent.querySelectorAll('.add-skill-btn, .add-item-btn');
+        const portfolioPlaceholder = document.getElementById('portfolio-placeholder');
+        const projectsListContainer = document.getElementById('projects-list-container');
 
         if (isEditMode) {
             editables.forEach(el => {
@@ -280,6 +377,11 @@ document.addEventListener('DOMContentLoaded', () => {
             addBtns.forEach(btn => {
                 btn.style.display = 'inline-flex';
             });
+
+            if (isPortfolioMode) {
+                portfolioPlaceholder.style.display = 'none';
+                projectsListContainer.style.display = 'grid';
+            }
 
             editToggleBtn.classList.add('btn-icon-active');
             editToggleBtn.style.color = 'var(--accent)';
@@ -334,6 +436,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.remove();
                 }
             });
+
+            const allProjCards = cvContent.querySelectorAll('.project-card');
+            allProjCards.forEach(card => {
+                const h3Text = card.querySelector('h3') ? card.querySelector('h3').textContent.trim() : '';
+                if (h3Text === '' || h3Text === 'Nome do Projeto') {
+                    card.remove();
+                }
+            });
+
+            if (isPortfolioMode) {
+                const projectCardsCount = portfolioSection.querySelectorAll('.project-card').length;
+                if (projectCardsCount > 0) {
+                    portfolioPlaceholder.style.display = 'none';
+                    projectsListContainer.style.display = 'grid';
+                } else {
+                    portfolioPlaceholder.style.display = 'flex';
+                    projectsListContainer.style.display = 'none';
+                }
+            }
 
             editToggleBtn.classList.remove('btn-icon-active');
             editToggleBtn.style.color = '';
@@ -459,6 +580,25 @@ document.addEventListener('DOMContentLoaded', () => {
             sel.removeAllRanges();
             sel.addRange(range);
         }
+        else if (btn.id === 'add-project-btn') {
+            const projectsContainer = document.getElementById('projects-list-container');
+            const newCard = document.createElement('div');
+            newCard.className = 'project-card';
+            newCard.innerHTML = `
+                <div class="project-header">
+                    <span class="badge editable-active" contenteditable="true">Categoria</span>
+                    <h3 contenteditable="true" class="editable-active">Nome do Projeto</h3>
+                </div>
+                <p class="project-description editable-active" contenteditable="true">
+                    Descricao aqui das funcionalidades, desafios tecnicos e o impacto do seu projeto.
+                </p>
+                <div class="project-footer">
+                    <span class="project-tag editable-active" contenteditable="true">Tecnologia</span>
+                </div>
+            `;
+            projectsContainer.insertBefore(newCard, btn);
+            newCard.querySelector('h3').focus();
+        }
     });
 
     function showToast(message) {
@@ -484,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isEditMode) {
             toggleEditMode(false);
         }
+        logEvent('pdf_download');
         window.print();
     });
 

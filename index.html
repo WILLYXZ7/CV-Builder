@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellynton Cardoso | Desenvolvedor de Software</title>
+    <meta name="description" content="Currículo profissional de Wellynton Cardoso - Desenvolvedor de Software e Estudante de Ciência da Computação. Conheça minhas experiências, habilidades e qualificações.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <nav class="action-bar" id="action-bar" aria-label="Controles da página">
+        <div class="action-container">
+            <span class="logo">WC<span class="dot">.</span></span>
+            <div class="controls">
+                <button id="theme-toggle" class="btn-icon" aria-label="Alternar tema claro/escuro" title="Alternar Tema">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <button id="edit-toggle" class="btn-icon" aria-label="Ativar modo de edição" title="Editar Currículo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-svg">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </button>
+                <button id="save-changes" class="btn-success" aria-label="Salvar alterações" title="Salvar Alterações" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-svg">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span>Salvar</span>
+                </button>
+                <button id="reset-cv" class="btn-danger-action" aria-label="Resetar currículo" title="Resetar Currículo" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-svg">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+                <button id="print-btn" class="btn-primary" aria-label="Imprimir ou Salvar currículo em PDF" title="Imprimir / Salvar PDF">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-svg">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    <span>PDF / Imprimir</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="cv-wrapper" id="cv-content">
+        <header class="cv-header">
+            <div class="header-intro animate-slide-down">
+                <div class="name-badge-wrapper">
+                    <h1 id="user-name">Wellynton Cardoso</h1>
+                    <span class="age-badge">24 anos</span>
+                </div>
+                <p class="subtitle" id="user-title">Desenvolvedor Júnior <span class="divider">|</span> Estudante de Tecnologia</p>
+            </div>
+
+            <div class="contact-info animate-fade-in" id="contact-list">
+                <a href="tel:+5554997016667" class="contact-item" id="contact-phone" aria-label="Telefone: (54) 99701-6667">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span>(54) 99701-6667</span>
+                </a>
+                <a href="mailto:wellyntoncardoso3539@gmail.com" class="contact-item" id="contact-email" aria-label="E-mail: wellyntoncardoso3539@gmail.com">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span>wellyntoncardoso3539@gmail.com</span>
+                </a>
+                <div class="contact-item" id="contact-location" aria-label="Localização: Flores da Cunha - RS">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span>Flores da Cunha - RS</span>
+                </div>
+                <a href="https://github.com/WellyntonCardoso" target="_blank" rel="noopener noreferrer" class="contact-item" id="contact-github" aria-label="GitHub: WellyntonCardoso">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                    <span>github.com/WellyntonCardoso</span>
+                </a>
+                <a href="https://www.linkedin.com/in/wellyntoncardoso/" target="_blank" rel="noopener noreferrer" class="contact-item" id="contact-linkedin" aria-label="LinkedIn: wellyntoncardoso">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-icon">
+                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                        <rect x="2" y="9" width="4" height="12"></rect>
+                        <circle cx="4" cy="4" r="2"></circle>
+                    </svg>
+                    <span>linkedin.com/in/wellyntoncardoso</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="cv-grid">
+            <div class="column-left">
+                <section class="cv-section animate-slide-up" id="sec-about">
+                    <div class="section-title-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="section-title-icon">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <h2>Sobre mim</h2>
+                    </div>
+                    <p class="about-text">
+                        Desenvolvedor de Software e graduando em <strong>Ciência da Computação</strong>, com experiência prática no desenvolvimento e manutenção de sistemas ERP em <strong>Delphi</strong> e na otimização de bancos de dados <strong>SQL</strong>. Possuo sólida base lógica e facilidade na resolução de problemas complexos. Sou proativo, adaptável e focado na criação de código limpo, eficiente e de alto valor para o negócio.
+                    </p>
+                </section>
+
+                <section class="cv-section animate-slide-up" id="sec-experience">
+                    <div class="section-title-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="section-title-icon">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2>Experiência profissional</h2>
+                    </div>
+                    
+                    <div class="timeline" id="experience-timeline">
+                        <div class="timeline-item active-item" id="exp-1">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-header">
+                                <div class="job-title-group">
+                                    <h3>Desenvolvedor de Software</h3>
+                                    <span class="company">Rech Center Sistemas</span>
+                                </div>
+                                <span class="date-badge">02/2026 - Atual</span>
+                            </div>
+                            <p class="job-tech"><strong>Tecnologias:</strong> Delphi, Banco de Dados, SQL, Sistemas ERP</p>
+                            <p class="job-description">
+                                Atuação no desenvolvimento de novas funcionalidades, correções e melhorias em sistemas ERP. Foco na modelagem de dados e otimização de consultas SQL para ganho de performance operacional. Colaboração ativa no ciclo de vida de desenvolvimento em equipe, utilizando boas práticas e metodologias ágeis em Delphi.
+                            </p>
+                        </div>
+
+                        <div class="timeline-item" id="exp-2">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-header">
+                                <div class="job-title-group">
+                                    <h3>Operador de Processo Petroquímico</h3>
+                                    <span class="company">Plastiline Embalagens</span>
+                                </div>
+                                <span class="date-badge">08/2020 - 07/2025</span>
+                            </div>
+                            <p class="job-description">
+                                Atuação estratégica em gestão de processos industriais complexos e rotinas de produção. Destaque no papel de usuário-chave no controle e apontamento de materiais via sistema ERP, o que despertou meu interesse prático por sistemas integrados. Forte atuação em resolução de problemas sob pressão e trabalho colaborativo em equipe técnica.
+                            </p>
+                        </div>
+                        <button class="add-item-btn" id="add-experience-btn" title="Adicionar Experiência">+ Experiência</button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="column-right">
+                <section class="cv-section animate-slide-up" id="sec-education">
+                    <div class="section-title-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="section-title-icon">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                        </svg>
+                        <h2>Formação</h2>
+                    </div>
+                    <div id="education-list-container">
+                        <div class="education-card">
+                            <div class="card-header">
+                                <h3>Bacharelado em Ciência da Computação</h3>
+                                <span class="institution">FSG | Centro Universitário da Serra Gaúcha</span>
+                            </div>
+                            <div class="card-meta">
+                                <span class="status-indicator in-progress"></span>
+                                <span class="date">Agosto/2025 - Em andamento</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="add-item-btn" id="add-education-btn" title="Adicionar Formação">+ Formação</button>
+                </section>
+
+                <section class="cv-section animate-slide-up" id="sec-courses">
+                    <div class="section-title-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="section-title-icon">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <h2>Cursos complementares</h2>
+                    </div>
+                    
+                    <div class="courses-grid">
+                        <div class="course-category">
+                            <div class="category-header">
+                                <span class="badge">Tecnologia</span>
+                                <h4>Alura <span class="year">(2025)</span></h4>
+                            </div>
+                            <ul class="course-list">
+                                <li>Lógica em programação</li>
+                                <li>JavaScript</li>
+                                <li>Git e GitHub</li>
+                            </ul>
+                            <button class="add-item-btn add-course-btn" title="Adicionar Curso">+ Curso</button>
+                        </div>
+                        <div class="course-category">
+                            <div class="category-header">
+                                <span class="badge">Idiomas</span>
+                                <h4>Alura Língua <span class="year">(2025)</span></h4>
+                            </div>
+                            <ul class="course-list">
+                                <li>Inglês Pré-intermediário</li>
+                                <li>Inglês para Devs</li>
+                            </ul>
+                            <button class="add-item-btn add-course-btn" title="Adicionar Curso">+ Curso</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cv-section animate-slide-up" id="sec-skills">
+                    <div class="section-title-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="section-title-icon">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                        <h2>Competências</h2>
+                    </div>
+                    
+                    <div class="skills-container">
+                        <div class="skill-category-block" id="hard-skills-block">
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Delphi</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Bancos de Dados SQL</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Firebird</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Node.js</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">JavaScript</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Integração de APIs (REST)</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Git & GitHub</span></span>
+                            <span class="skill-tag hard"><span class="bullet"></span><span class="tag-text">Sistemas ERP</span></span>
+                            <button class="add-skill-btn" id="add-hard-skill" title="Adicionar Competência Técnica">+ Competência</button>
+                        </div>
+                        <div class="skill-category-block" id="soft-skills-block">
+                            <span class="skill-tag soft"><span class="bullet"></span><span class="tag-text">Regras de Negócio</span></span>
+                            <span class="skill-tag soft"><span class="bullet"></span><span class="tag-text">Trabalho em Equipe</span></span>
+                            <span class="skill-tag soft"><span class="bullet"></span><span class="tag-text">Proatividade</span></span>
+                            <span class="skill-tag soft"><span class="bullet"></span><span class="tag-text">Resolução de Problemas</span></span>
+                            <span class="skill-tag soft"><span class="bullet"></span><span class="tag-text">Pensamento Criativo</span></span>
+                            <span class="skill-tag soft"><span class="bullet"></span><span class="tag-text">Comprometimento & Organização</span></span>
+                            <button class="add-skill-btn" id="add-soft-skill" title="Adicionar Competência Comportamental">+ Competência</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="cv-footer animate-fade-in" id="cv-footer">
+        <p>&copy; 2026 Wellynton Cardoso. Projetado com carinho e código puro.</p>
+    </footer>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

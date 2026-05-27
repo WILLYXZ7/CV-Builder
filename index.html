@@ -13,7 +13,13 @@
 <body class="dark-theme">
     <nav class="action-bar" id="action-bar" aria-label="Controles da página">
         <div class="action-container">
-            <span class="logo">WC<span class="dot">.</span></span>
+            <div class="logo-wrapper">
+                <span class="logo">WC<span class="dot">.</span></span>
+                <span id="user-badge" class="user-badge" style="display: none;">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text"></span>
+                </span>
+            </div>
             <div class="controls">
                 <button id="theme-toggle" class="btn-icon" aria-label="Alternar tema claro/escuro" title="Alternar Tema">
                     <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

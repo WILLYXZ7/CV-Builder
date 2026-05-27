@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const SUPABASE_URL = 'SEU_SUPABASE_URL';
-    const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
+    const SUPABASE_URL = 'https://txywidexwqrrmrlxclic.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4eXdpZGV4d3Fycm1ybHhjbGljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NDIyMjIsImV4cCI6MjA5NTQxODIyMn0.2GSA1vXEhPHb850TmMq0_3cWn1RGGh8AdrapLhklrW0';
     const ADMIN_EMAIL = 'wellyntoncardoso3539@gmail.com';
 
     const themeToggleBtn = document.getElementById('theme-toggle');
@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const lockIcon = authBtn.querySelector('.lock-icon');
     const unlockIcon = authBtn.querySelector('.unlock-icon');
+    const userBadge = document.getElementById('user-badge');
+    const badgeText = userBadge.querySelector('.badge-text');
 
     let supabase = null;
     if (SUPABASE_URL !== 'SEU_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'SUA_SUPABASE_ANON_KEY') {
@@ -130,11 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 unlockIcon.style.display = 'inline-block';
                 authBtn.title = 'Sair da Area Restrita';
                 editToggleBtn.style.display = 'inline-flex';
+                badgeText.textContent = `Admin: ${session.user.email}`;
+                userBadge.style.display = 'inline-flex';
             } else {
                 lockIcon.style.display = 'inline-block';
                 unlockIcon.style.display = 'none';
                 authBtn.title = 'Acesso Restrito';
                 editToggleBtn.style.display = 'none';
+                userBadge.style.display = 'none';
                 if (isEditMode) {
                     toggleEditMode(false);
                 }

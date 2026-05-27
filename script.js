@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const SUPABASE_URL = 'SEU_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
+    const ADMIN_EMAIL = 'wellyntoncardoso3539@gmail.com';
+
     const themeToggleBtn = document.getElementById('theme-toggle');
     const printBtn = document.getElementById('print-btn');
     const editToggleBtn = document.getElementById('edit-toggle');
@@ -8,10 +12,208 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastContainer = document.getElementById('toast-container');
     const body = document.body;
 
-    const savedCvData = localStorage.getItem('welly-cv-data');
-    if (savedCvData) {
-        cvContent.innerHTML = savedCvData;
+    const authBtn = document.getElementById('auth-btn');
+    const loginModal = document.getElementById('login-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const loginForm = document.getElementById('login-form');
+    const loginEmailInput = document.getElementById('login-email');
+    const loginPasswordInput = document.getElementById('login-password');
+
+    const lockIcon = authBtn.querySelector('.lock-icon');
+    const unlockIcon = authBtn.querySelector('.unlock-icon');
+
+    let supabase = null;
+    if (SUPABASE_URL !== 'SEU_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'SUA_SUPABASE_ANON_KEY') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
+
+    async function loadCvData() {
+        if (supabase) {
+            try {
+                const { data, error } = await supabase
+                    .from('cv_data')
+                    .select('html_content')
+                    .eq('user_email', ADMIN_EMAIL)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (data && data.html_content) {
+                    cvContent.innerHTML = data.html_content;
+                    return true;
+                }
+            } catch (err) {
+                console.error(err.message);
+            }
+        }
+        
+        const savedCvData = localStorage.getItem('welly-cv-data');
+        if (savedCvData) {
+            cvContent.innerHTML = savedCvData;
+            return true;
+        }
+        return false;
+    }
+
+    async function saveCvData() {
+        const htmlContent = cvContent.innerHTML;
+        localStorage.setItem('welly-cv-data', htmlContent);
+
+        if (supabase) {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session && session.user.email === ADMIN_EMAIL) {
+                    const { error } = await supabase
+                        .from('cv_data')
+                        .upsert({
+                            user_email: ADMIN_EMAIL,
+                            html_content: htmlContent,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: 'user_email' });
+
+                    if (error) throw error;
+                    showToast('Salvo no banco de dados.');
+                    return;
+                }
+            } catch (err) {
+                console.error(err.message);
+                showToast('Salvo localmente (erro de conexao).');
+                return;
+            }
+        }
+        showToast('Salvo localmente.');
+    }
+
+    async function handlePostLoginSync() {
+        if (!supabase) return;
+        try {
+            const { data, error } = await supabase
+                .from('cv_data')
+                .select('html_content')
+                .eq('user_email', ADMIN_EMAIL)
+                .maybeSingle();
+
+            if (error) throw error;
+
+            if (!data) {
+                const htmlContent = cvContent.innerHTML;
+                const { error: upsertError } = await supabase
+                    .from('cv_data')
+                    .upsert({
+                        user_email: ADMIN_EMAIL,
+                        html_content: htmlContent,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_email' });
+
+                if (upsertError) throw upsertError;
+                showToast('Dados locais enviados ao banco.');
+            } else {
+                cvContent.innerHTML = data.html_content;
+                showToast('Sincronizado com o banco.');
+            }
+        } catch (err) {
+            console.error(err.message);
+        }
+    }
+
+    async function updateAuthStateUI() {
+        if (!supabase) {
+            editToggleBtn.style.display = 'inline-flex';
+            authBtn.style.display = 'none';
+            return;
+        }
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session && session.user.email === ADMIN_EMAIL) {
+                lockIcon.style.display = 'none';
+                unlockIcon.style.display = 'inline-block';
+                authBtn.title = 'Sair da Area Restrita';
+                editToggleBtn.style.display = 'inline-flex';
+            } else {
+                lockIcon.style.display = 'inline-block';
+                unlockIcon.style.display = 'none';
+                authBtn.title = 'Acesso Restrito';
+                editToggleBtn.style.display = 'none';
+                if (isEditMode) {
+                    toggleEditMode(false);
+                }
+            }
+        } catch (err) {
+            console.error(err.message);
+        }
+    }
+
+    authBtn.addEventListener('click', async () => {
+        if (!supabase) return;
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const confirmLogout = confirm('Deseja sair da Area Restrita?');
+                if (confirmLogout) {
+                    await supabase.auth.signOut();
+                    showToast('Sessao encerrada.');
+                    updateAuthStateUI();
+                    window.location.reload();
+                }
+            } else {
+                loginModal.classList.add('active');
+                loginEmailInput.focus();
+            }
+        } catch (err) {
+            console.error(err.message);
+        }
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        loginModal.classList.remove('active');
+        loginForm.reset();
+    });
+
+    loginModal.addEventListener('click', (e) => {
+        if (e.target === loginModal) {
+            loginModal.classList.remove('active');
+            loginForm.reset();
+        }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!supabase) return;
+
+        const email = loginEmailInput.value.trim();
+        const password = loginPasswordInput.value;
+
+        const submitBtn = loginForm.querySelector('.btn-auth');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Aguarde...';
+
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) throw error;
+
+            showToast('Acesso autorizado!');
+            loginModal.classList.remove('active');
+            loginForm.reset();
+            await updateAuthStateUI();
+            await handlePostLoginSync();
+        } catch (err) {
+            showToast('E-mail ou senha incorretos.');
+            console.error(err.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+
+    loadCvData().then(() => {
+        updateAuthStateUI();
+    });
 
     const savedTheme = localStorage.getItem('cv-theme') || 'dark-theme';
     if (savedTheme === 'light-theme') {
@@ -80,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveChangesBtn.style.display = 'flex';
             resetCvBtn.style.display = 'flex';
 
-            showToast('Modo edição ativado.');
+            showToast('Modo edicao ativado.');
         } else {
             editables.forEach(el => {
                 if (el.tagName === 'A') {
@@ -144,18 +346,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveChangesBtn.addEventListener('click', () => {
         toggleEditMode(false);
-        localStorage.setItem('welly-cv-data', cvContent.innerHTML);
-        showToast('Alterações salvas com sucesso.');
+        saveCvData();
     });
 
     resetCvBtn.addEventListener('click', () => {
-        const confirmReset = confirm('Deseja restaurar a versão original do currículo?');
+        const confirmReset = confirm('Deseja restaurar a versao original do curriculo?');
         if (confirmReset) {
             localStorage.removeItem('welly-cv-data');
-            showToast('Restaurando currículo padrão...');
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            if (supabase) {
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (session && session.user.email === ADMIN_EMAIL) {
+                        supabase.from('cv_data').delete().eq('user_email', ADMIN_EMAIL).then(() => {
+                            showToast('Curriculo resetado no banco.');
+                            setTimeout(() => window.location.reload(), 800);
+                        });
+                        return;
+                    }
+                    showToast('Limpando cache local...');
+                    setTimeout(() => window.location.reload(), 800);
+                });
+            } else {
+                showToast('Limpando cache local...');
+                setTimeout(() => window.location.reload(), 800);
+            }
         }
     });
 
@@ -171,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const newTag = document.createElement('span');
             newTag.className = `skill-tag ${isHard ? 'hard' : 'soft'}`;
-            newTag.innerHTML = '<span class="bullet"></span><span class="tag-text editable-active" contenteditable="true">Nova Competência</span>';
+            newTag.innerHTML = '<span class="bullet"></span><span class="tag-text editable-active" contenteditable="true">Nova Competencia</span>';
             
             parentBlock.insertBefore(newTag, btn);
             const newTextSpan = newTag.querySelector('.tag-text');
@@ -194,11 +407,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 contenteditable="true" class="editable-active">Novo Cargo</h3>
                         <span class="company" contenteditable="true" class="editable-active">Empresa</span>
                     </div>
-                    <span class="date-badge" contenteditable="true" class="editable-active">Início - Fim</span>
+                    <span class="date-badge" contenteditable="true" class="editable-active">Inicio - Fim</span>
                 </div>
                 <p class="job-tech" contenteditable="true" class="editable-active"><strong>Tecnologias:</strong> Delphi, SQL</p>
                 <p class="job-description" contenteditable="true" class="editable-active">
-                    Descrição da sua atuação, projetos desenvolvidos e conquistas nesta nova experiência profissional.
+                    Descricao da sua atuacao, projetos desenvolvidos e conquistas nesta nova experiencia profissional.
                 </p>
             `;
             
@@ -211,12 +424,12 @@ document.addEventListener('DOMContentLoaded', () => {
             newCard.className = 'education-card';
             newCard.innerHTML = `
                 <div class="card-header">
-                    <h3 contenteditable="true" class="editable-active">Nova Formação</h3>
-                    <span class="institution" contenteditable="true" class="editable-active">Instituição / Escola</span>
+                    <h3 contenteditable="true" class="editable-active">Nova Formacao</h3>
+                    <span class="institution" contenteditable="true" class="editable-active">Instituicao / Escola</span>
                 </div>
                 <div class="card-meta">
                     <span class="status-indicator in-progress"></span>
-                    <span class="date" contenteditable="true" class="editable-active">Início - Fim</span>
+                    <span class="date" contenteditable="true" class="editable-active">Inicio - Fim</span>
                 </div>
             `;
             
